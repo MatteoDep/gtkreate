@@ -1,7 +1,8 @@
 # gtkreate
 
-gtkreate is a command line tool to create gtk themes.
-The template sterted as a copy of [FlatColor 2.0 by jasperro](https://github.com/jasperro/FlatColor).
+gtkreate is a command line tool to create gtk themes which started as a
+simplified copy of
+[oomox-gtk-theme](https://github.com/themix-project/oomox-gtk-theme).
 
 ## Installation
 
