@@ -12,6 +12,9 @@ cd gtkreate
 ./install.sh
 ```
 
+To upgrade you can run `./install.sh upgrade`.
+To overwrite your configs with default ones run `./install.sh overwrite`.
+
 ## Usage
 
 ```
@@ -35,17 +38,20 @@ cp base16-gtkreate/templates ~/.local/share/flavours/base16/templates/gtkreate/
 rm -rf base16-gtkreate
 ```
 
-Use a `gtkreaterc` like this one below:
+In your `gtkreaterc` make sure to wrap your color definitions with `# Start/End flavours` like this:
 
 ```
 #!/bin/sh
 
 # Start flavours
+BG=2E3440
+FG=E5E9F0
+... other colors ...
 # End flavours
 
 ROUNDNESS=0
 SPACING=3
-GRADIENT=0.0"
+... other settings ...
 ```
 
 and put this in your `~/.config/flavours/config.toml`

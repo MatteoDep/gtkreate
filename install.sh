@@ -6,11 +6,26 @@ config_file="$config_dir/gtkreaterc"
 
 mkdir -p "$data_dir" "$config_dir"
 
-if [ "$1" = "update" ]; then
-    git pull
-fi
+overwrite=
+needed="--needed"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        upgrade)
+            git pull
+            needed=""
+            ;;
+        overwrite)
+            overwrite=1
+            ;;
+    esac
+    shift
+done
 
-cp -rf template "$data_dir/template"
+cp -rf src "$data_dir/"
+cp -rf Makefile "$data_dir/"
 [ -f "$config_file" -o "$1" = "overwrite" ] || cp gtkreaterc "$config_file"
+
+# install dependencies
+sudo pacman --noconfirm "$needed" -S bash grep sed bc glib2 gdk-pixbuf2 sassc gtk-engine-murrine gtk-engines librsvg
 
 sudo cp -f gtkreate /usr/local/bin/

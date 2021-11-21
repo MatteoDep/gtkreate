@@ -1,11 +1,10 @@
 #!/bin/sh
 
-set -ue
-
 OUTPUT_THEME_NAME=${1:-gtkreated}
 
-SRC_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/gtkreate/template"
-CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/gtkreate/gtkreaterc"
+SRC_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/gtkreate"
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+CONFIG_PATH="$config_home/gtkreate/gtkreaterc"
 DEST_PATH_ROOT="/usr/share/themes"
 DEST_PATH="$DEST_PATH_ROOT/$OUTPUT_THEME_NAME"
 
@@ -17,8 +16,6 @@ else
 fi
 
 darker () {
-    set -ue
-
     darker_channel() {
         value="$1"
         light_delta="$2"
@@ -47,8 +44,6 @@ darker () {
 }
 
 mix () {
-    set -ue
-
     mix_channel() {
         value1="$(printf '%03d' "0x$1")"
         value2="$(printf '%03d' "0x$2")"
@@ -93,16 +88,26 @@ is_dark(){
 }
 
 
-PATHLIST="openbox-3
-assets
-gtk-2.0
-gtk-3.0
-gtk-3.20
-xfwm4
-metacity-1
-unity
-index.theme
-cinnamon"
+PATHLIST="
+src/openbox-3
+src/assets
+src/gtk-2.0
+src/gtk-3.0
+src/gtk-3.20
+src/qt5ct_palette.conf
+src/qt6ct_palette.conf
+src/xfwm4
+src/metacity-1
+src/unity
+Makefile
+src/index.theme
+src/cinnamon
+"
+SVG_PREVIEWS="
+gtk-3.0/thumbnail.svg
+gtk-3.20/thumbnail.svg
+metacity-1/thumbnail.svg
+"
 
 OPTION_GTK2_HIDPI=$(echo "${OPTION_GTK2_HIDPI-False}" | tr '[:upper:]' '[:lower:]')
 
@@ -168,18 +173,22 @@ TERMINAL_COLOR10=${TERMINAL_COLOR10:-4caf50}
 TERMINAL_COLOR11=${TERMINAL_COLOR11:-ef6c00}
 TERMINAL_COLOR12=${TERMINAL_COLOR12:-03a9f4}
 
-[ "$SRC_PATH" = "$DEST_PATH" ] && echo "can't do that" && exit 1
-
 
 rm -rf "$DEST_PATH"
 mkdir -p "$DEST_PATH"
-echo -e "\nBuilding theme at $DEST_PATH\n"
-cp -r "$SRC_PATH/index.theme" "$DEST_PATH"
-
+echo "Building theme at $DEST_PATH"
+cp -r "$SRC_PATH/src/index.theme" "$DEST_PATH"
 
 for FILEPATH in $PATHLIST; do
 	cp -r "$SRC_PATH/$FILEPATH" "$DEST_PATH"
-	find "$DEST_PATH/$FILEPATH" -type f -exec sed -i'' \
+done
+
+cd "$DEST_PATH"
+pwd
+ls
+
+for FILEPATH in $PATHLIST; do
+	find "${FILEPATH#*src/}" -type f -exec sed -i'' \
 		-e 's/%BG%/'"$BG"'/g' \
 		-e 's/%FG%/'"$FG"'/g' \
 		-e 's/%SEL_BG%/'"$SEL_BG"'/g' \
@@ -240,13 +249,22 @@ if [ ${UNITY_DEFAULT_LAUNCHER_STYLE} = "true" ] ; then
 	rm ./unity/launcher*.svg
 fi
 
-config_home=${XDG_CONFIG_HOME:-}
-if [ -z "${config_home}" ] ; then
-	config_home="${HOME}/.config"
-fi
+# run make
+env MAKEFLAGS= make --jobs="$(nproc)" ${MAKE_OPTS}
 
-rm -fr ./Makefile gtk-3.*/scss
+# export qt5ct
+qt5ct_colors_dir="${config_home}/qt5ct/colors/"
+test -d "${qt5ct_colors_dir}" || mkdir -p "${qt5ct_colors_dir}"
+mv ./qt5ct_palette.conf "${qt5ct_colors_dir}/${OUTPUT_THEME_NAME}.conf"
 
-exit 0
+# export qt6ct
+qt6ct_colors_dir="${config_home}/qt6ct/colors/"
+test -d "${qt6ct_colors_dir}" || mkdir -p "${qt6ct_colors_dir}"
+mv ./qt6ct_palette.conf "${qt6ct_colors_dir}/${OUTPUT_THEME_NAME}.conf"
 
-cp -f  "$template_dir" "/usr/share/themes/$1"
+rm -rf ./Makefile gtk-3.*/scss
+
+for FILEPATH in $SVG_PREVIEWS; do
+	rsvg-convert --format=png -o "$(echo "$FILEPATH" | sed -e 's/svg$/png/')" "$FILEPATH"
+	rm "$FILEPATH"
+done
