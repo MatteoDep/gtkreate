@@ -1,11 +1,14 @@
 #!/bin/sh
 
+set -e
+
 OUTPUT_THEME_NAME=${1:-gtkreated}
 
-SRC_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/gtkreate"
-config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+config_home=${XDG_CONFIG_HOME:-$HOME/.config}
+data_home=${XDG_DATA_HOME:-$HOME/.local/share}
+SRC_PATH="$data_home/gtkreate"
 CONFIG_PATH="$config_home/gtkreate/gtkreaterc"
-DEST_PATH_ROOT="/usr/share/themes"
+DEST_PATH_ROOT="$HOME/.themes"
 DEST_PATH="$DEST_PATH_ROOT/$OUTPUT_THEME_NAME"
 
 if [ -f "$CONFIG_PATH" ]; then
