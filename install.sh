@@ -26,6 +26,6 @@ cp -rf Makefile "$data_dir/"
 [ -f "$config_file" -o "$1" = "overwrite" ] || cp gtkreaterc "$config_file"
 
 # install dependencies
-sudo pacman --noconfirm "$needed" -S bash grep sed bc glib2 gdk-pixbuf2 sassc gtk-engine-murrine gtk-engines librsvg
+sudo pacman --noconfirm "$needed" -S bash grep sed bc glib2 gdk-pixbuf2 sassc gtk-engine-murrine gtk-engines librsvg xsettingsd
 
 sudo cp -f gtkreate /usr/local/bin/
